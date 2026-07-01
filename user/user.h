@@ -25,6 +25,7 @@ char* sys_sbrk(int,int);
 int pause(int);
 int uptime(void);
 int helloshm(void);
+int shmget(int key, int npages);
 
 // ulib.c
 int stat(const char*, struct stat*);

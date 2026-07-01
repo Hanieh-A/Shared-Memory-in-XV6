@@ -112,3 +112,12 @@ sys_helloshm(void)
   printf("helloshm: syscall works!\n");
   return 42;
 }
+
+uint64
+sys_shmget(void)
+{
+  int key, npages;
+  argint(0, &key);
+  argint(1, &npages);
+  return shmget(key, npages);
+}
