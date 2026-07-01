@@ -105,3 +105,10 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_helloshm(void)
+{
+  printf("helloshm: syscall works!\n");
+  return 42;
+}
