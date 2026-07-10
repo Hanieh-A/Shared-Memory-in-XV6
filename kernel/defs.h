@@ -184,6 +184,7 @@ void            virtio_disk_intr(void);
 // shm.c
 void            shminit(void);
 int             shmget(int, int);
+uint64          shmat(int);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

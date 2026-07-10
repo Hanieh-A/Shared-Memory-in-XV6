@@ -121,3 +121,11 @@ sys_shmget(void)
   argint(1, &npages);
   return shmget(key, npages);
 }
+
+uint64
+sys_shmat(void)
+{
+  int shmid;
+  argint(0, &shmid);
+  return shmat(shmid);
+}

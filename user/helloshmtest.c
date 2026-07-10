@@ -4,15 +4,35 @@
 int
 main(void)
 {
-  int id1 = shmget(42, 1);
-  printf("shmget(42, 1) = %d\n", id1);  // باید 0 یا یه عدد >= 0 باشه
+  int shmid = shmget(42, 1);
+  if(shmid < 0){
+    printf("shmget failed\n");
+    exit(1);
+  }
 
-  int id2 = shmget(42, 1);
-  printf("shmget(42, 1) again = %d\n", id2);  // باید همون id1 باشه
+  int pid = fork();
 
-  int id3 = shmget(99, 2);
-  printf("shmget(99, 2) = %d\n", id3);  // باید متفاوت باشه
+  if(pid < 0){
+    printf("fork failed\n");
+    exit(1);
+  }
 
-  printf("test done\n");
-  exit(0);
+  if(pid == 0){
+    char *addr = (char*)shmat(shmid);
+    pause(10);
+    printf("child read: %s\n", addr);
+    exit(0);
+  } else {
+    char *addr = (char*)shmat(shmid);
+    addr[0] = 'H';
+    addr[1] = 'e';
+    addr[2] = 'l';
+    addr[3] = 'l';
+    addr[4] = 'o';
+    addr[5] = '\0';
+    printf("parent wrote: %s\n", addr);
+    wait(0);
+    printf("sharing test done\n");
+    exit(0);
+  }
 }

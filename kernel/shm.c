@@ -3,6 +3,7 @@
 #include "memlayout.h"
 #include "riscv.h"
 #include "spinlock.h"
+#include "proc.h" 
 #include "defs.h"
 #include "shm.h"
 
@@ -75,4 +76,39 @@ shmget(int key, int npages)
 
   release(&shm_lock);
   return slot;
+}
+
+uint64
+shmat(int shmid)
+{
+  if(shmid < 0 || shmid >= SHM_MAX_SEGS)
+    return 0;
+
+  acquire(&shm_lock);
+
+  struct shm_segment *seg = &shm_table[shmid];
+  if(!seg->in_use){
+    release(&shm_lock);
+    return 0;
+  }
+
+  struct proc *p = myproc();
+
+  uint64 va = PGROUNDUP(p->sz);
+
+  for(int j = 0; j < seg->npages; j++){
+    if(mappages(p->pagetable, va + j * PGSIZE, PGSIZE,
+                (uint64)seg->frames[j], PTE_R | PTE_W | PTE_U) != 0){
+      uvmunmap(p->pagetable, va, j, 0);  
+      release(&shm_lock);
+      return 0;
+    }
+  }
+
+  p->sz = va + seg->npages * PGSIZE;
+
+  seg->ref_count++;
+
+  release(&shm_lock);
+  return va;
 }

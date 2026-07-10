@@ -44,3 +44,4 @@ entry("pause");
 entry("uptime");
 entry("helloshm");
 entry("shmget");
+entry("shmat");

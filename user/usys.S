@@ -115,3 +115,8 @@ shmget:
  li a7, SYS_shmget
  ecall
  ret
+.global shmat
+shmat:
+ li a7, SYS_shmat
+ ecall
+ ret
