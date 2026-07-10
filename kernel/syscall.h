@@ -23,3 +23,4 @@
 #define SYS_helloshm  22
 #define SYS_shmget 23
 #define SYS_shmat  24
+#define SYS_shmdt  25

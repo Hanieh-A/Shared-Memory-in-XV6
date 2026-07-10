@@ -112,3 +112,50 @@ shmat(int shmid)
   release(&shm_lock);
   return va;
 }
+
+int
+shmdt(uint64 addr)
+{
+  if(addr == 0)
+    return -1;
+
+  acquire(&shm_lock);
+
+  struct proc *p = myproc();
+  struct shm_segment *seg = 0;
+  int slot = -1;
+
+  for(int i = 0; i < SHM_MAX_SEGS; i++){
+    if(!shm_table[i].in_use)
+      continue;
+    uint64 pa = walkaddr(p->pagetable, addr);
+    if(pa == (uint64)shm_table[i].frames[0]){
+      seg = &shm_table[i];
+      slot = i;
+      break;
+    }
+  }
+
+  if(seg == 0){
+    release(&shm_lock);
+    return -1;
+  }
+
+  uvmunmap(p->pagetable, addr, seg->npages, 0);
+
+  seg->ref_count--;
+
+  if(seg->ref_count == 0){
+    for(int j = 0; j < seg->npages; j++){
+      kfree(seg->frames[j]);
+      seg->frames[j] = 0;
+    }
+    seg->in_use    = 0;
+    seg->key       = 0;
+    seg->npages    = 0;
+    printf("shmdt: segment %d freed\n", slot);
+  }
+
+  release(&shm_lock);
+  return 0;
+}

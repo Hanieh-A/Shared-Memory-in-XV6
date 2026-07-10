@@ -129,3 +129,11 @@ sys_shmat(void)
   argint(0, &shmid);
   return shmat(shmid);
 }
+
+uint64
+sys_shmdt(void)
+{
+  uint64 addr;
+  argaddr(0, &addr);
+  return shmdt(addr);
+}

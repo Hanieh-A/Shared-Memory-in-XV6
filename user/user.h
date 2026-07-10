@@ -27,6 +27,7 @@ int uptime(void);
 int helloshm(void);
 int shmget(int key, int npages);
 void* shmat(int shmid);
+int   shmdt(void *addr);
 
 // ulib.c
 int stat(const char*, struct stat*);

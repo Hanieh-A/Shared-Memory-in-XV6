@@ -120,3 +120,8 @@ shmat:
  li a7, SYS_shmat
  ecall
  ret
+.global shmdt
+shmdt:
+ li a7, SYS_shmdt
+ ecall
+ ret

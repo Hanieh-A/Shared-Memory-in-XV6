@@ -45,3 +45,4 @@ entry("uptime");
 entry("helloshm");
 entry("shmget");
 entry("shmat");
+entry("shmdt");
