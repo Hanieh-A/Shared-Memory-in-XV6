@@ -6,12 +6,10 @@
 #include "defs.h"
 #include "shm.h"
 
-// آرایه‌ی global همه‌ی segment ها
 static struct shm_segment shm_table[SHM_MAX_SEGS];
 
 static struct spinlock shm_lock;
 
-// این تابع رو در main.c صدا می‌زنیم تا همه چیز initialize بشه
 void
 shminit(void)
 {
@@ -37,7 +35,6 @@ shmget(int key, int npages)
 
   acquire(&shm_lock);
 
-  // آیا segment با این key قبلاً وجود داره؟
   for(int i = 0; i < SHM_MAX_SEGS; i++){
     if(shm_table[i].in_use && shm_table[i].key == key){
       release(&shm_lock);
@@ -45,7 +42,6 @@ shmget(int key, int npages)
     }
   }
 
-  // یه slot خالی پیدا کن
   int slot = -1;
   for(int i = 0; i < SHM_MAX_SEGS; i++){
     if(!shm_table[i].in_use){
@@ -55,14 +51,12 @@ shmget(int key, int npages)
   }
   if(slot == -1){
     release(&shm_lock);
-    return -1;  // جا نداریم
+    return -1; 
   }
 
-  // صفحات فیزیکی رو allocate کن
   for(int j = 0; j < npages; j++){
     char *mem = kalloc();
     if(mem == 0){
-      // اگه kalloc شکست خورد، آنچه گرفتیم رو آزاد کن
       for(int k = 0; k < j; k++){
         kfree(shm_table[slot].frames[k]);
         shm_table[slot].frames[k] = 0;
