@@ -337,6 +337,8 @@ kexit(int status)
     }
   }
 
+  shmcleanup(p);
+
   begin_op();
   iput(p->cwd);
   end_op();

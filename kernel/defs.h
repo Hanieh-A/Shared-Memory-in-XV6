@@ -186,6 +186,7 @@ void            shminit(void);
 int             shmget(int, int);
 uint64          shmat(int);
 int             shmdt(uint64);
+void            shmcleanup(struct proc*);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

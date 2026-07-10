@@ -159,3 +159,47 @@ shmdt(uint64 addr)
   release(&shm_lock);
   return 0;
 }
+
+void
+shmcleanup(struct proc *p)
+{
+  acquire(&shm_lock);
+
+  for(int i = 0; i < SHM_MAX_SEGS; i++){
+    if(!shm_table[i].in_use)
+      continue;
+
+    uint64 pa = walkaddr(p->pagetable, 0);  // dummy init
+    int found = 0;
+    uint64 va = 0;
+
+    for(uint64 addr = PGSIZE; addr < p->sz; addr += PGSIZE){
+      pa = walkaddr(p->pagetable, addr);
+      if(pa == (uint64)shm_table[i].frames[0]){
+        va = addr;
+        found = 1;
+        break;
+      }
+    }
+
+    if(!found)
+      continue;
+
+    // unmap کن (do_free=0 چون حافظه متعلق به shm_table هست)
+    uvmunmap(p->pagetable, va, shm_table[i].npages, 0);
+    shm_table[i].ref_count--;
+
+    if(shm_table[i].ref_count == 0){
+      for(int j = 0; j < shm_table[i].npages; j++){
+        kfree(shm_table[i].frames[j]);
+        shm_table[i].frames[j] = 0;
+      }
+      shm_table[i].in_use = 0;
+      shm_table[i].key    = 0;
+      shm_table[i].npages = 0;
+      printf("shmcleanup: segment %d freed on exit\n", i);
+    }
+  }
+
+  release(&shm_lock);
+}
